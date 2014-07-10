@@ -12,20 +12,33 @@ from django.core.context_processors import csrf
 from django.views.decorators.csrf import csrf_protect
 from django.core.urlresolvers import reverse
 
-# Create your views here.
-
-def index(request):
-    #bienvenido
-    if request.user.is_authenticated():
-        return HttpResponseRedirect(reverse("mainMenu"))
-    return TemplateResponse(request, "index.html", {"form" : CrearCliente()})
-
 
 @csrf_protect
 def createAccount(request):
-    if request.method == 'POST':
-        form = CrearCliente(request.POST)
+    if request.user.is_authenticated():
+        return HttpResponseRedirect(reverse("mainMenu"))
+    elif request.method == "POST":
+        form = CreateUserForm(request.POST)
         if form.is_valid():
-            form.save() #save world
+            form.save()
             return HttpResponseRedirect(reverse("mainMenu"))
-    return HttpResponseRedirect(reverse("index"))
+    return TemplateResponse(request, "createAccount.html", {"form" : CreateUserForm()})
+
+ 
+@csrf_protect
+def index(request):
+    if request.user.is_authenticated():
+        return HttpResponseRedirect(reverse("mainMenu"))
+    return TemplateResponse(request, "index.html", {"form" : CreateUserForm()})
+
+
+@csrf_protect
+def Login(request):
+    if (request.method=='POST'):
+        usuario = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(username=usuario, password=password)
+        if user is not None and user.is_active:
+             login(request, user)
+             return HttpResponseRedirect(reverse("mainMenu"))
+    return TemplateResponse(request, "index.html", {"form" : UserForm()})

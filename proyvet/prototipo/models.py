@@ -1,5 +1,6 @@
 from django.db import models
 from datetime import datetime
+from django.contrib.auth.models import User
 
 # Create your models here. NO quiero xD
 
@@ -10,12 +11,23 @@ LUGARES_CHOISES = (
     ('Silo_de_soja', 'Silo de Soja'),
 )
 
+
+class Veterinaria(models.Model):
+    nombre = models.CharField(max_length=75)
+    direccion = models.CharField(max_length=75)
+    telefono = models.IntegerField(max_length=75, blank=True)
+    mail = models.EmailField(max_length=75, blank=True)
+
+class UsuarioVet(models.Model):
+    user = models.OneToOneField(User)
+    veterinaria = models.ForeignKey(Veterinaria, max_length=75, related_name="usuarioVet", verbose_name="Usuario de la veterinaria")
+
 class Cliente(models.Model):
     nombre = models.CharField(max_length=75)
     apellido = models.CharField(max_length=75)
-    domicilio = models.CharField(max_length=75)
-    telefono = models.IntegerField() # change for format phone
-    email = models.EmailField(max_length=254)
+    domicilio = models.CharField(max_length=75, blank=True)
+    telefono = models.IntegerField(blank=True) # change for format phone
+    email = models.EmailField(max_length=254, blank=True)
 
     #constructor de clase
    
@@ -25,15 +37,7 @@ class Especie(models.Model):
     descripcion = models.CharField(max_length=75)
 
     #constructor de clase
-    def __init__(self, nombre,descripcion):
-        
-        if(nombre and descripcion):
-                self.nombre = nombre
-                self.descripcion = descripcion
-                
-        else:
-            raise InfoEspecieIncorrecta("Faltan datos para crear Especie")
-
+    
 
 class Raza(models.Model):
 
@@ -42,30 +46,16 @@ class Raza(models.Model):
 
     #constructor de clase. Se necesita el id de especie para crear.
 
-    def __init__(self, nombre_especie,nombre):
-
-        if(nombre_especie):
-            aux = Objects.Especie.get(nombre=nombre_especie)
-            if(aux):
-                if(nombre):
-                    self.especie = aux
-                    self.nombre = nombre
-                else:
-                    raise InfoRazaIncorrecta("Debe ingresar el nombre de la raza")
-            else:
-                raise RazaEspecieIncorrecta("La especie no existe")
-        else:
-            raise RazaInfoEspecieVacia("El campo nombre_especie es obligatorio")
-
+    
 class Paciente(models.Model):
     nombre = models.CharField(max_length=75)
     edad = models.IntegerField(blank=True)
     raza = models.ForeignKey(Raza, verbose_name="raza del animal", related_name="paciente")
     sexo = models.CharField(max_length=75, blank=True)
-    convNinos = models.BooleanField(default=False)
-    convAnimales = models.BooleanField(default=False)
+    convNinos = models.BooleanField(default=False, blank=True)
+    convAnimales = models.BooleanField(default=False, blank=True)
     lugar = models.CharField(max_length=64, choices=LUGARES_CHOISES, blank=True)
-    castrado = models.BooleanField()
+    castrado = models.BooleanField(blank=True)
     #enfermedades <-
     peso = models.FloatField(blank=True)
     foto = models.ImageField(blank=True, upload_to="fotos")
@@ -78,45 +68,12 @@ class Paciente(models.Model):
 
     #constructor de clase. Se necesita el id de la raza
 
-    def __init__(self, nombre, edad, id_raza, sexo, convNinos="", convAnimales="", lugar="", 
-        castrado="", peso="", foto="", reproductor="", collar="", chip=""):
-
-        if(raza):
-            aux = Objects.Raza.get(nombre = id_raza)
-            if(aux):
-                if(nombre and edad and sexo):
-                    self.nombre = nombre
-                    self.edad = edad
-                    self.raza = aux
-                    self.sexo = sexo
-                else:
-                    raise PacienteInfoIncorrecta("Los campos nombre, edad y sexo son obligatorios")
-            else:
-                raise RazaEspecieIncorrecta("La raza no existe")
-        else:
-            raise RazaInfoEspecieVacia("El campo raza es obligatorio")
-
-        self.convNinos = convNinos
-        self.convAnimales = convAnimales
-        self.lugar = lugar
-        self.castrado = castrado
-        self.peso = peso
-        self.reproductor = reproductor
-        self.collar = collar
-        self.chip = chip
-
+    
 class DescripcionServicio(models.Model):
     descripcion = models.CharField(max_length=75)
     costo = models.DecimalField(max_digits=10, decimal_places=2, null=True)
 
-    def __init__(self, descripcion, costo):
-
-        if(descripcion and costo):
-            self.descripcion = descripcionServicioVacunacion
-            self.costo = costo
-        else:
-            raise DescripcionServicioInfoIncorrecta("Los campos descripcion y costo son obligatorios")
-
+    
 class Servicios(models.Model):
     paciente = models.ForeignKey(Paciente, verbose_name="animal tratado", related_name="servicios")
     descripcion = models.ForeignKey(DescripcionServicio, verbose_name="Tratamiento", related_name="servicios")
@@ -125,25 +82,7 @@ class Servicios(models.Model):
     fechaFin = models.DateField(default=datetime.today())
 
     #constructor de clase. Se necesitan los id de descripcion y paciente.
-    def __init__(self, id_paciente, id_descripcion, costoCongelado="", fechaInicio="", fechaFin=""):
-
-        if(id_paciente and id_descripcion):
-            aux_paciente = Objects.Paciente.get(id = id_paciente)
-            aux_descripcion = Objects.DescripcionServicio.get(id = id_descripcion)
-            if(aux_paciente and aux_descripcion):
-                self.paciente = aux_paciente
-                self.descripcion = aux_descripcion
-                self.costoCongelado = aux_descripcion.costo
-            else:
-                raise ServiciosInfoIncorrecta("Los campos paciente o descripcion son incorrectos")
-        else:
-            raise ServiciosInfoVacia("Los campos paciente o descripcion son obligatorios")
-
-        self.fechaInicio = fechaInicio
-        self.fechaFin = fechaFin
-
-
-
+    
 class Pagos(models.Model):
     servicios = models.ForeignKey(Paciente, verbose_name="pagos del tratamiento", related_name="pagos")
     monto = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
