@@ -1,7 +1,7 @@
 from django.db import models
 from datetime import datetime
 from django.contrib.auth.models import User
-
+from django.contrib.auth import authenticate, login, logout
 # Create your models here. NO quiero xD
 
 LUGARES_CHOISES = (
@@ -21,6 +21,7 @@ class Veterinaria(models.Model):
 class UsuarioVet(models.Model):
     user = models.OneToOneField(User)
     veterinaria = models.ForeignKey(Veterinaria, max_length=75, related_name="usuarioVet", verbose_name="Usuario de la veterinaria")
+
 
 class Cliente(models.Model):
     nombre = models.CharField(max_length=75)
