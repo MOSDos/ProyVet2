@@ -67,7 +67,6 @@ def createSuper(request):
 @csrf_protect
 def Login(request):
     if (request.method=='POST'):
-        
         usuario = request.POST['username']
         password = request.POST['password1']
         aux = User.objects.get(username=usuario)
