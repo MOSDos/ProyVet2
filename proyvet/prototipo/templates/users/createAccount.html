@@ -1,0 +1,19 @@
+<html>
+
+<meta>
+<title > ProVet </title>
+<http-equiv="content-type" content="text/html; charset=UTF-8" />
+
+<h1 align=center> Crear Usuario en ProVet </h1>
+
+<div>
+<form action="{% url 'createAccount' %}" method="POST">
+	<table>
+	{% csrf_token %}
+	{{ form }}
+	
+	</table>
+	<button type="Submit" value="Submit">Submit</button>
+</form>
+</div>
+</body>

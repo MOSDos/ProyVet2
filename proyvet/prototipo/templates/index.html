@@ -1,0 +1,26 @@
+<html>
+
+<meta>
+<title > ProVet </title>
+<http-equiv="content-type" content="text/html; charset=UTF-8" />
+
+<h1 align=center> Bienvenido a PyVet </h1>
+
+<div>
+<form action="{% url 'login' %}" method="POST">
+	<table>
+	{% csrf_token %}
+	<td>{{ form.username.label_tag }}</td>
+    <td>{{ form.username }}</td>
+    </tr>
+	<tr>
+    <td>{{ form.password.label_tag }}</td>
+    <td>{{ form.password }}</td>
+	</tr>
+	</table>
+	<button type="Submit" value="Submit">Submit</button>
+	<br>
+	<a href="{% url 'createAccount' %}" > Crear Usuario </a>
+</form>
+</div>
+</body>
